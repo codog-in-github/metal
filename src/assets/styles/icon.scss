@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 'icon-font';
+  src: url('~@/assets/fonts/icon-font.woff2') format('woff2');
+}
+
+.icon{
+  font-family: 'icon-font' !important;
+
+  &-cash::before{
+    content: '\e001';
+  }
+
+  &-chart::before{
+    content: '\e002';
+  }
+
+  &-exchange::before{
+    content: '\e003';
+  }
+}
