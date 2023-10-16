@@ -7,7 +7,7 @@ const db = new sqlite.Database(
   path.resolve(dbDir, DB_FILE_NAME)
 );
 
-module.exports.each = function (sql, cb = someVal => someVal) {
+module.exports.each = function each (sql, cb = someVal => someVal) {
   return new Promise((resolve) =>{
     db.serialize(() => {
       const data = [];
@@ -18,6 +18,16 @@ module.exports.each = function (sql, cb = someVal => someVal) {
         },
         () => resolve(data)
       );
+    });
+  });
+};
+
+module.exports.exec = function exec (sql) {
+  return new Promise((reslove, reject) => {
+    db.serialize(function () {
+      db.run(sql, function () {
+        reslove(this);
+      });
     });
   });
 };

@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-const invokes = ['exec'];
+const invokes = ['exec', 'each'];
 const electron = {};
 
 invokes.forEach(name => {

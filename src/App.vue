@@ -18,7 +18,7 @@
             @click="router.push(item.path)"
           >
             <va-sidebar-item-content>
-              <span :class="['icon', 'icon-' + item.icon]"></span>
+              <va-icon :name="item.icon"></va-icon>
               <va-sidebar-item-title>
                 {{ item.title }}
               </va-sidebar-item-title>
@@ -41,8 +41,9 @@ const route = useRoute();
 const router = useRouter();
 const minimized = ref(false);
 const items = [
-  { title: '交易录入', path: '/', icon: 'cash' },
-  { title: '统计', path: '/chart', icon: 'chart' },
+  { title: '交易录入', path: '/', icon: 'payments' },
+  { title: '统计', path: '/chart', icon: 'pie_chart' },
+  { title: '交易明细', path: '/business-list', icon: 'fact_check' },
 ];
 
 </script>

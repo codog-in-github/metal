@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const { preloadJs, distDir } = require('./filePath');
 const path = require('path');
-const { each } = require('./dbLib');
+const { each, exec } = require('./dbLib');
 // const tra = require('./tra');
 /**
  * 限制 mac
@@ -30,7 +30,8 @@ function createWin () {
   });
   Menu.setApplicationMenu(null);
 
-  ipcMain.handle('exec', () => each('select * from goods'));
+  ipcMain.handle('each', (_, sql, cb) => each(sql, cb));
+  ipcMain.handle('exec', (_, sql) => exec(sql));
 
   if(app.isPackaged) {
     win.loadFile(path.resolve(distDir, 'index.html'));
