@@ -2,6 +2,9 @@
   <va-data-table :items="items" :columns="columns" striped>
     <template #header(create_time)>
       <va-date-input
+        @update:modelValue="$nextTick(loadData)"
+        :month-names="monthNames"
+        :weekday-names="weekdayNames"
         label="时间"
         v-model="filters.dates"
         style="width: 190px"
@@ -9,6 +12,8 @@
     </template>
     <template #header(goods_id)>
       <va-select
+        @update:modelValue="$nextTick(loadData)"
+        clearable
         label="商品类型"
         style="width: 130px"
         v-model="filters.id"
@@ -18,6 +23,8 @@
     <template #header(goods_type)>
       <va-select
         label="期货类型"
+        @update:modelValue="$nextTick(loadData)"
+        clearable
         v-model="filters.type"
         style="width: 130px"
         :options="goodsTypeOptions"
@@ -27,8 +34,8 @@
     <template v-slot:cell(goods_id)="{ value }" >{{ goodsIdName(value) }}</template>
     <template v-slot:cell(goods_type)="{ value }" >{{ goodsTypeName(value) }}</template>
     <template v-slot:cell(total)="{ value }" >
-      <span v-if="value < 0" style="color: red;">{{ -value }}</span>
-      <span v-else style="color: green;">{{ value }}</span>
+      <span v-if="value < 0" style="color: red;">卖出 {{ -value }}</span>
+      <span v-else style="color: green;">购入 {{ value }}</span>
     </template>
   </va-data-table>
 </template>
@@ -38,7 +45,14 @@ import { ref } from 'vue';
 import moment from 'moment';
 import { GOODS_ID_IMPURE, GOODS_ID_PURE, GOODS_TYPE_FUTURES, GOODS_TYPE_SPOT } from '@/constant';
 
-const sql = 'SELECT * FROM "business" WHERE 1 = 1';
+const monthNames = [
+  '一月', '二月', '三月', '四月',
+  '五月', '六月', '七月', '八月',
+  '九月', '十月', '十一月', '十二月',
+];
+const weekdayNames = [
+  '日','一','二','三','四','五', '六'
+];
 const filters = ref({
   dates: {
     start: moment().startOf('month').toDate(),
@@ -81,7 +95,6 @@ function goodsTypeName (type) {
   }
   return '未知';
 }
-
 function goodsIdName (type) {
   switch (Number(type)) {
   case GOODS_ID_IMPURE:
@@ -91,7 +104,33 @@ function goodsIdName (type) {
   }
   return '未知';
 }
+
 function loadData () {
+  const qs = [];
+  let sql = 'SELECT * FROM "business"';
+  if(!filters.value.dates.start || !filters.value.dates.end) {
+    return;
+  }
+  qs.push(
+    `("create_time" >= ${
+      filters.value.dates.start.valueOf()
+    } AND "create_time" <= ${
+      moment(filters.value.dates.end).endOf('day').valueOf()
+    })`
+  );
+  if(filters.value.id) {
+    qs.push(
+      `"goods_id" =  ${filters.value.id.value}`
+    );
+  }
+  if(filters.value.type) {
+    qs.push(
+      `"goods_type" =  ${filters.value.type.value}`
+    );
+  }
+  if(qs.length > 0) {
+    sql += ` WHERE ${qs.join(' AND ')}`;
+  }
   electron.each(sql).then(data => {
     items.value = Object.freeze(data);
   });
